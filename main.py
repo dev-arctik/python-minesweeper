@@ -20,6 +20,7 @@ def main():
     start_time = time.time()
     game_time = 0
     last_time_update = 0
+    timer_paused = False
     
     # Flag to track when we need to redraw the board
     need_board_update = True
@@ -30,11 +31,23 @@ def main():
             current_time = time.time()
             
             # Update game time only once per second to avoid flickering
-            if int(current_time - start_time) > last_time_update:
+            # and only if the game is not over
+            if not timer_paused and int(current_time - start_time) > last_time_update:
                 game_time = current_time - start_time
                 last_time_update = int(game_time)
                 
                 # Draw the stats
+                renderer.draw_stats(
+                    game.get_flags_remaining(),
+                    game.flags_used,
+                    game_time
+                )
+                pygame.display.update(pygame.Rect(0, 0, renderer.screen_width, renderer.stats_height))
+            
+            # Check if game is over and pause timer if needed
+            if (game.is_game_over() or game.is_win()) and not timer_paused:
+                timer_paused = True
+                # Make sure stats are updated one last time with final time
                 renderer.draw_stats(
                     game.get_flags_remaining(),
                     game.flags_used,
@@ -64,6 +77,7 @@ def main():
                                 start_time = time.time()
                                 game_time = 0
                                 last_time_update = 0
+                                timer_paused = False
                             else:
                                 # Get the board state to check if we're clicking on a revealed number
                                 board_state = game.get_board_state()
