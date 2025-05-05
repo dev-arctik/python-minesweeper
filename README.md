@@ -2,6 +2,9 @@
 
 A classic Minesweeper game implemented in Python.
 
+![Gameplay Screenshot-01](https://raw.githubusercontent.com/dev-arctik/python-minesweeper/refs/heads/master/gameplay_screenshots/Minesweeper-gameplay-01.png)
+![Gameplay Screenshot-02](https://raw.githubusercontent.com/dev-arctik/python-minesweeper/refs/heads/master/gameplay_screenshots/Minesweeper-gameplay-02.png)
+
 ## Description
 
 This project is my attempt on vibe coding i.e. making everything using claude.
