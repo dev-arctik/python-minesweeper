@@ -1,3 +1,4 @@
+# game.py
 from board import Board
 
 class MinesweeperGame:
@@ -8,12 +9,14 @@ class MinesweeperGame:
         self.num_mines = num_mines
         self.game_over = False
         self.win = False
+        self.flags_used = 0
     
     def new_game(self):
         """Start a new game."""
         self.board = Board(self.width, self.height, self.num_mines)
         self.game_over = False
         self.win = False
+        self.flags_used = 0
     
     def reveal_cell(self, x, y):
         """Reveal a cell at the given coordinates."""
@@ -31,7 +34,16 @@ class MinesweeperGame:
         if self.game_over or self.win:
             return False
         
-        return self.board.toggle_flag(x, y)
+        result = self.board.toggle_flag(x, y)
+        if result:
+            # Update flags count
+            cell = self.board.grid[y][x]
+            if cell.is_flagged:
+                self.flags_used += 1
+            else:
+                self.flags_used -= 1
+                
+        return result
     
     def get_board_state(self):
         """Get the current visible state of the board."""
@@ -44,3 +56,7 @@ class MinesweeperGame:
     def is_win(self):
         """Check if the game is won."""
         return self.win
+        
+    def get_flags_remaining(self):
+        """Get the number of flags remaining."""
+        return self.num_mines - self.flags_used
