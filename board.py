@@ -88,6 +88,59 @@ class Board:
         
         return self.grid[y][x].toggle_flag()
     
+    def chord(self, x, y):
+        """
+        Perform a chord action on a revealed number.
+        If the number of adjacent flags matches the number in the cell,
+        reveal all unflagged adjacent cells.
+        Returns True if successful, False otherwise.
+        """
+        if not (0 <= x < self.width and 0 <= y < self.height):
+            return False
+        
+        cell = self.grid[y][x]
+        
+        # Only chord on revealed numbers
+        if not cell.is_revealed or cell.is_mine or cell.adjacent_mines == 0:
+            return False
+        
+        # Count adjacent flags
+        adjacent_flags = 0
+        adjacent_cells = []
+        
+        for dx in range(-1, 2):
+            for dy in range(-1, 2):
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < self.width and 0 <= ny < self.height and not (dx == 0 and dy == 0):
+                    adjacent_cell = self.grid[ny][nx]
+                    if adjacent_cell.is_flagged:
+                        adjacent_flags += 1
+                    else:
+                        adjacent_cells.append((nx, ny))
+        
+        # If flags match the number, reveal all unflagged adjacent cells
+        if adjacent_flags == cell.adjacent_mines:
+            # Check for incorrect flags - if a flag is not on a mine, game over
+            for dx in range(-1, 2):
+                for dy in range(-1, 2):
+                    nx, ny = x + dx, y + dy
+                    if 0 <= nx < self.width and 0 <= ny < self.height and not (dx == 0 and dy == 0):
+                        adjacent_cell = self.grid[ny][nx]
+                        if adjacent_cell.is_flagged and not adjacent_cell.is_mine:
+                            # Incorrect flag found! Reveal and trigger game over
+                            adjacent_cell.is_flagged = False
+                            adjacent_cell.reveal()
+                            self.game_over = True
+                            return True
+            
+            # All flags are correct, reveal all unflagged adjacent cells
+            for nx, ny in adjacent_cells:
+                self.reveal_cell(nx, ny)
+            
+            return True
+        
+        return False
+    
     def check_win(self):
         """Check if all non-mine cells are revealed."""
         for y in range(self.height):

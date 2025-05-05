@@ -45,6 +45,17 @@ class MinesweeperGame:
                 
         return result
     
+    def chord(self, x, y):
+        """Perform a chord action at the given coordinates."""
+        if self.game_over or self.win:
+            return False
+        
+        result = self.board.chord(x, y)
+        self.game_over = self.board.game_over
+        self.win = self.board.win
+        
+        return result
+    
     def get_board_state(self):
         """Get the current visible state of the board."""
         return self.board.get_visible_board()

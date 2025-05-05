@@ -56,7 +56,7 @@ def main():
                     if cell_pos:
                         x, y = cell_pos
                         
-                        # Left click - reveal cell
+                        # Left click - reveal cell or chord
                         if event.button == 1:
                             if game.is_game_over() or game.is_win():
                                 # Restart the game
@@ -65,7 +65,19 @@ def main():
                                 game_time = 0
                                 last_time_update = 0
                             else:
-                                game.reveal_cell(x, y)
+                                # Get the board state to check if we're clicking on a revealed number
+                                board_state = game.get_board_state()
+                                try:
+                                    cell_value = board_state[y][x]
+                                    # If it's a revealed number, try to chord
+                                    if cell_value not in ["■", "F", "X", " "]:
+                                        game.chord(x, y)
+                                    else:
+                                        # Otherwise, just reveal the cell
+                                        game.reveal_cell(x, y)
+                                except (IndexError, ValueError):
+                                    # If there's any error, just do a normal reveal
+                                    game.reveal_cell(x, y)
                             
                             need_board_update = True
                         
@@ -85,6 +97,15 @@ def main():
             
             # Only redraw the board when needed (on init and after events)
             if need_board_update:
+                # If game over, ensure we reveal all mines for proper rendering
+                if game.is_game_over():
+                    # Make sure all mines are revealed in the board display
+                    for y in range(game.height):
+                        for x in range(game.width):
+                            cell = game.board.grid[y][x]
+                            if cell.is_mine:
+                                cell.is_revealed = True
+                
                 renderer.draw_board(
                     game.get_board_state(),
                     game.is_game_over(),
